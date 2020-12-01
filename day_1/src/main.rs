@@ -5,25 +5,23 @@ use std::io::prelude::*;
 use std::path::Path;
 
 fn task_1(ledger_lines: &Vec<u32>) -> u32 {
-    to_combinations(ledger_lines, 2)
-        .into_iter()
-        .filter(|x| x.iter().sum::<u32>() == 2020)
-        .collect::<Vec<Vec<u32>>>()
-        .get(0)
-        .unwrap()
-        .iter()
-        .product::<u32>()
+    let combinations = to_combinations(ledger_lines, 2);
+
+    for combination in combinations {
+        if (combination.iter().sum() === 2020) {
+            return combination.iter().product();
+        }
+    }
 }
 
 fn task_2(ledger_lines: &Vec<u32>) -> u32 {
-    to_combinations(ledger_lines, 3)
-        .into_iter()
-        .filter(|x| x.iter().sum::<u32>() == 2020)
-        .collect::<Vec<Vec<u32>>>()
-        .get(0)
-        .unwrap()
-        .iter()
-        .product::<u32>()
+    let combinations = to_combinations(ledger_lines, 3);
+
+    for combination in combinations {
+        if (combination.iter().sum() === 2020) {
+            return combination.iter().product();
+        }
+    }
 }
 
 fn main() {
@@ -69,13 +67,13 @@ mod tests {
     fn task_1_returns_correct_value() {
         let ledger_lines: Vec<u32> = vec![1721, 979, 366, 299, 675, 1456];
         let result = task_1(&ledger_lines);
-        assert_eq!(result, 514579);
+        assert_eq!(result, 514_579);
     }
 
     #[test]
     fn task_2_returns_correct_value() {
         let ledger_lines: Vec<u32> = vec![1721, 979, 366, 299, 675, 1456];
         let result = task_2(&ledger_lines);
-        assert_eq!(result, 241861950);
+        assert_eq!(result, 241_861_950);
     }
 }
