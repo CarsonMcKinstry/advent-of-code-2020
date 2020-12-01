@@ -1,61 +1,63 @@
+use combinations::Combinations;
 use std::env;
-use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 fn task_1(ledger_lines: &Vec<u32>) -> u32 {
-    let mut answer: u32 = 0;
-
-    for (i, line) in ledger_lines.iter().enumerate() {
-        let lines_to_check = &ledger_lines[i + 1..];
-
-        if lines_to_check.len() > 0 {
-            for line_to_check in lines_to_check {
-                if line + line_to_check == 2020 {
-                    answer = line * line_to_check;
-                }
-            }
-        }
-    }
-
-    answer
+    to_combinations(ledger_lines, 2)
+        .into_iter()
+        .filter(|x| x.iter().sum::<u32>() == 2020)
+        .collect::<Vec<Vec<u32>>>()
+        .get(0)
+        .unwrap()
+        .iter()
+        .product::<u32>()
 }
 
 fn task_2(ledger_lines: &Vec<u32>) -> u32 {
-    let mut answer: u32 = 0;
-
-    for (i, line) in ledger_lines.iter().enumerate() {
-        let lines_to_check = &ledger_lines[i + 1..];
-
-        if lines_to_check.len() > 0 {
-            for (j, line_to_check) in lines_to_check.iter().enumerate() {
-                let lines_to_check_2 = &lines_to_check[j + 1..];
-
-                for line_to_check_2 in lines_to_check_2 {
-                    if line + line_to_check + line_to_check_2 == 2020 {
-                        answer = line * line_to_check * line_to_check_2;
-                    }
-                }
-            }
-        }
-    }
-
-    answer
+    to_combinations(ledger_lines, 3)
+        .into_iter()
+        .filter(|x| x.iter().sum::<u32>() == 2020)
+        .collect::<Vec<Vec<u32>>>()
+        .get(0)
+        .unwrap()
+        .iter()
+        .product::<u32>()
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let input = &args[1];
 
-    let contents = fs::read_to_string(input).expect("Something went wrong reading the file");
-
-    let ledger_lines = contents
-        .split("\n")
-        .collect::<Vec<&str>>()
-        .iter()
+    let contents: Vec<u32> = read_file(input)
+        .lines()
         .map(|n| n.parse::<u32>().unwrap())
-        .collect::<Vec<u32>>();
+        .collect();
 
-    println!("Task 1: {}", task_1(&ledger_lines));
-    println!("Task 2: {}", task_2(&ledger_lines));
+    println!("Part 1: {}", task_1(&contents));
+    println!("Part 2: {}", task_2(&contents));
+}
+
+fn to_combinations(values: &Vec<u32>, n_items: usize) -> Vec<Vec<u32>> {
+    Combinations::new(values.to_vec(), n_items).collect()
+}
+
+fn read_file(location: &str) -> String {
+    let path = Path::new(location);
+    let display = path.display();
+
+    let mut file = match File::open(&path) {
+        Err(why) => panic!("could open {}: {}", display, why),
+        Ok(file) => file,
+    };
+
+    let mut s = String::new();
+
+    match file.read_to_string(&mut s) {
+        Err(why) => panic!("couldn't read {}: {}", display, why),
+        Ok(_) => return s,
+    }
 }
 
 #[cfg(test)]
