@@ -8,8 +8,8 @@ use std::str::FromStr;
 #[derive(Debug)]
 struct Policy {
     character: String,
-    min: u32,
-    max: u32,
+    param_one: usize,
+    param_two: usize,
 }
 
 #[derive(Debug)]
@@ -19,29 +19,35 @@ struct PasswordFile {
 }
 
 impl PasswordFile {
-    pub fn is_valid_1(&self) -> bool {
-        let char_count: u32 = self
+    pub fn is_valid_by_min_max(&self) -> bool {
+        let character_count: usize = self
             .password
             .split("")
             .into_iter()
-            .filter(|&c| c == self.policy.character)
-            .count() as u32;
+            .filter(|&character| character == self.policy.character)
+            .count();
 
-        char_count >= self.policy.min && char_count <= self.policy.max
+        character_count >= self.policy.param_one && character_count <= self.policy.param_two
     }
 
     fn get_char_at_position(&self, position: usize) -> String {
         self.password.chars().nth(position - 1).unwrap().to_string()
     }
 
-    pub fn is_valid_2(&self) -> bool {
-        let pos_one = self.get_char_at_position(self.policy.min as usize);
-        let pos_two = self.get_char_at_position(self.policy.max as usize);
+    fn char_fits_policy(&self, character: String) -> bool {
+        self.policy.character == character
+    }
 
-        let pos_one_matches = pos_one == self.policy.character;
-        let pos_two_matches = pos_two == self.policy.character;
+    pub fn is_valid_by_positions(&self) -> bool {
+        let characters_match = vec![
+            self.char_fits_policy(self.get_char_at_position(self.policy.param_one)),
+            self.char_fits_policy(self.get_char_at_position(self.policy.param_two)),
+        ]
+        .iter()
+        .filter(|&character_matches| !!character_matches)
+        .count();
 
-        (pos_one_matches && !pos_two_matches) || (!pos_one_matches && pos_two_matches)
+        characters_match == 1
     }
 }
 
@@ -51,35 +57,41 @@ impl FromStr for PasswordFile {
     fn from_str(s: &str) -> Result<PasswordFile, Self::Err> {
         let mut parts = s.split(":");
 
-        let policy = parts.next().unwrap();
+        let policy = Policy::from_str(parts.next().unwrap()).unwrap();
         let password = parts.next().unwrap().to_string().trim().to_string();
-
-        let mut policy_parts = policy.split_whitespace();
-
-        let num = policy_parts.next().unwrap();
-        let c = policy_parts.next().unwrap();
-
-        let mut min_max = num.split("-");
-
-        let min = min_max.next().unwrap().parse::<u32>().unwrap();
-        let max = min_max.next().unwrap().parse::<u32>().unwrap();
-
-        let policy = Policy {
-            min,
-            max,
-            character: c.to_string(),
-        };
 
         Ok(PasswordFile { policy, password })
     }
 }
 
+impl FromStr for Policy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Policy, Self::Err> {
+        let mut parts = s.split_whitespace();
+
+        let params = parts.next().unwrap();
+        let character = parts.next().unwrap().to_string();
+
+        let mut params = params.split("-");
+
+        let param_one = params.next().unwrap().parse().unwrap();
+        let param_two = params.next().unwrap().parse().unwrap();
+
+        Ok(Policy {
+            character,
+            param_one,
+            param_two,
+        })
+    }
+}
+
 fn task_1(files: &Vec<PasswordFile>) -> usize {
-    files.iter().filter(|file| file.is_valid_1()).count()
+    files.iter().filter(|file| file.is_valid_by_min_max()).count()
 }
 
 fn task_2(files: &Vec<PasswordFile>) -> usize {
-    files.iter().filter(|file| file.is_valid_2()).count()
+    files.iter().filter(|file| file.is_valid_by_positions()).count()
 }
 
 fn main() {
