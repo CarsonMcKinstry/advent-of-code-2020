@@ -6,22 +6,28 @@ use std::path::Path;
 
 fn task_1(ledger_lines: &Vec<u32>) -> u32 {
     let combinations = to_combinations(ledger_lines, 2);
-
+    let mut answer: u32 = 0;
     for combination in combinations {
-        if (combination.iter().sum() === 2020) {
-            return combination.iter().product();
+        if combination.iter().sum::<u32>() == 2020 {
+            answer = combination.iter().product::<u32>();
+            break;
         }
     }
+    answer
 }
 
 fn task_2(ledger_lines: &Vec<u32>) -> u32 {
     let combinations = to_combinations(ledger_lines, 3);
+    let mut answer: u32 = 0;
 
     for combination in combinations {
-        if (combination.iter().sum() === 2020) {
-            return combination.iter().product();
+        if combination.iter().sum::<u32>() == 2020 {
+            answer = combination.iter().product::<u32>();
+            break;
         }
     }
+    answer
+
 }
 
 fn main() {
