@@ -3,7 +3,6 @@ use std::fs;
 use std::path::Path;
 
 fn main() {
-
     let args: Vec<String> = env::args().collect();
 
     let input = get_contents_from_input(&args[1]);
@@ -17,13 +16,10 @@ fn task_1(input: &Vec<Vec<String>>) -> u32 {
 }
 
 fn task_2(input: &Vec<Vec<String>>) -> u64 {
-
-    hits_on_slope(input, 1, 1) *
-    hits_on_slope(input, 1, 3) *
-    hits_on_slope(input, 1, 5) *
-    hits_on_slope(input, 1, 7) *
-    hits_on_slope(input, 2, 1)
-
+    (1..=7)
+        .step_by(2)
+        .fold(1, |acc, run| acc * hits_on_slope(input, 1, run))
+        * hits_on_slope(input, 2, 1)
 }
 
 fn hits_on_slope(lines: &Vec<Vec<String>>, rise: u32, run: u32) -> u64 {
@@ -42,9 +38,7 @@ fn hits_on_slope(lines: &Vec<Vec<String>>, rise: u32, run: u32) -> u64 {
     hit_count
 }
 
-
 fn get_contents_from_input(input: &str) -> Vec<Vec<String>> {
-
     let contents = read_file(input);
 
     let mut lines: Vec<Vec<String>> = vec![];
